@@ -121,10 +121,8 @@ private[spark] class GeotiffFileFormat extends FileFormat with DataSourceRegiste
         if (requiredSchema.isEmpty) {
           filteredResult.map(_ => emptyUnsafeRow)
         } else {
-          val converter = RowEncoder(requiredSchema).createSerializer() // SPARK3 anchor
-           filteredResult.map(row => converter(row)) // SPARK3 anchor
-//          val converter = RowEncoder(requiredSchema) // SPARK2 anchor
-//          filteredResult.map(row => converter.toRow(row)) // SPARK2 anchor
+          val converter = RowEncoder(requiredSchema).createSerializer()
+          filteredResult.map(row => converter(row))
         }
       }
     }

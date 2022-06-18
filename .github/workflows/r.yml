@@ -15,34 +15,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        spark: [2.4.8, 3.0.3, 3.1.2, 3.2.1]
-        scala: [2.11.8, 2.12.15]
+        spark: [3.0.3, 3.1.2, 3.2.1]
+        scala: [2.12.15]
         r: [oldrel, release]
-        exclude:
-          - spark: 3.2.1
-            scala: 2.11.8
-            r: oldrel
-          - spark: 3.2.1
-            scala: 2.11.8
-            r: release
-          - spark: 3.1.2
-            scala: 2.11.8
-            r: oldrel
-          - spark: 3.1.2
-            scala: 2.11.8
-            r: release
-          - spark: 3.0.3
-            scala: 2.11.8
-            r: oldrel
-          - spark: 3.0.3
-            scala: 2.11.8
-            r: release
-          - spark: 2.4.8
-            scala: 2.12.15
-            r: oldrel
-          - spark: 2.4.8
-            scala: 2.12.15
-            r: release
     env:
       SPARK_VERSION: ${{ matrix.spark }}
       SCALA_VERSION: ${{ matrix.scala }}
@@ -109,12 +84,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build Sedona libraries
-        run: |
-          if [ ${SPARK_VERSION:0:1} == "3" ]; then
-            mvn -q clean install -DskipTests -Dscala=${SCALA_VERSION:0:4} -Dspark=3.0 -Dgeotools
-          else
-            mvn -q clean install -DskipTests -Dscala=${SCALA_VERSION:0:4} -Dspark=2.4 -Dgeotools
-          fi
+        run: mvn -q clean install -DskipTests -Dscala=${SCALA_VERSION:0:4} -Dgeotools
       - name: Build R package
         env:
           WARNINGS_ARE_ERRORS: 1

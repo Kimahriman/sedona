@@ -74,12 +74,9 @@ class JoinQueryDetector(sparkSession: SparkSession) extends Strategy {
     }
 
   def apply(plan: LogicalPlan): Seq[SparkPlan] = plan match {
-    case Join(left, right, Inner, condition, JoinHint(leftHint, rightHint)) => { // SPARK3 anchor
-//    case Join(left, right, Inner, condition) => { // SPARK2 anchor
-      val broadcastLeft = leftHint.exists(_.strategy.contains(BROADCAST)) // SPARK3 anchor
-      val broadcastRight = rightHint.exists(_.strategy.contains(BROADCAST)) // SPARK3 anchor
-//      val broadcastLeft = left.isInstanceOf[ResolvedHint] && left.asInstanceOf[ResolvedHint].hints.broadcast  // SPARK2 anchor
-//      val broadcastRight = right.isInstanceOf[ResolvedHint] && right.asInstanceOf[ResolvedHint].hints.broadcast // SPARK2 anchor
+    case Join(left, right, Inner, condition, JoinHint(leftHint, rightHint)) => {
+      val broadcastLeft = leftHint.exists(_.strategy.contains(BROADCAST))
+      val broadcastRight = rightHint.exists(_.strategy.contains(BROADCAST))
 
       val queryDetection: Option[JoinQueryDetection] = condition match {
         case Some(predicate: ST_Predicate) =>
