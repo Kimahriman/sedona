@@ -71,11 +71,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.spark-project.spark</groupId>
-            <artifactId>unused</artifactId>
-            <version>1.0.0</version>
-        </dependency>
 
         <!-- Test -->
         <dependency>
@@ -340,31 +335,8 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <dependencyReducedPomLocation>${basedir}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
-                    <shadedArtifactAttached>false</shadedArtifactAttached>
-                    <useDependencyReducedPomInJar>true</useDependencyReducedPomInJar>
-                    <artifactSet>
-                        <includes>
-                            <include>org.spark-project.spark:unused</include>
-                        </includes>
-                    </artifactSet>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- This plugin is to replace property values in artifact names when publish -->
-            <!-- <plugin>
+            <plugin>
                 <groupId>io.paradoxical</groupId>
                 <artifactId>resolved-pom-maven-plugin</artifactId>
                 <version>1.0</version>
@@ -383,7 +355,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin> -->
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
