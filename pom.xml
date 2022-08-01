@@ -66,7 +66,7 @@
         <jts.version>1.18.2</jts.version>
         <jts2geojson.version>0.16.1</jts2geojson.version>
 
-        <geotools.scope>provided</geotools.scope>
+        <geotools.scope>compile</geotools.scope>
         <hadoop.scope>provided</hadoop.scope>
     </properties>
 
@@ -127,6 +127,7 @@
                 <artifactId>gt-main</artifactId>
                 <version>${geotools.version}</version>
                 <scope>${geotools.scope}</scope>
+                <optional>true</optional>
                 <exclusions>
                     <exclusion>
                         <groupId>org.locationtech.jts</groupId>
@@ -144,6 +145,7 @@
                 <artifactId>gt-referencing</artifactId>
                 <version>${geotools.version}</version>
                 <scope>${geotools.scope}</scope>
+                <optional>true</optional>
                 <exclusions>
                     <exclusion>
                         <groupId>com.fasterxml.jackson.core</groupId>
@@ -170,12 +172,14 @@
                 <artifactId>gt-geotiff</artifactId>
                 <version>${geotools.version}</version>
                 <scope>${geotools.scope}</scope>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-coverage</artifactId>
                 <version>${geotools.version}</version>
                 <scope>${geotools.scope}</scope>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
@@ -281,6 +285,11 @@
                         <source>1.8</source>
                         <target>1.8</target>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.3.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>

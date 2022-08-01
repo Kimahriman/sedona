@@ -55,10 +55,6 @@
             <artifactId>spark-sql_${scala.compat.version}</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-main</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
         </dependency>
@@ -91,6 +87,43 @@
                             <goal>check</goal>
                         </goals>
                     </execution>
+                </executions>
+            </plugin>
+            <!-- Copy the runtime dependencies to the target folder for the Python tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <includeScope>runtime</includeScope>
+                    <excludeArtifactIds>scala-library</excludeArtifactIds>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                    <!-- Copy this artifact to the dependency directory too -->
+                    <execution>
+                        <id>copy-artifact</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>${project.packaging}</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                        </configuration>
+                        </execution>
                 </executions>
             </plugin>
         </plugins>
