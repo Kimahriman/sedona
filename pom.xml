@@ -65,7 +65,6 @@
         <jts2geojson.version>0.16.1</jts2geojson.version>
         <spark.version>3.3.0</spark.version>
         <spark.compat.version>3.0</spark.compat.version>
-        <sedona.jackson.version>2.13.3</sedona.jackson.version>
         <hadoop.version>3.2.4</hadoop.version>
         <maven.deploy.skip>false</maven.deploy.skip>
 
@@ -75,18 +74,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${sedona.jackson.version}</version>
-            <scope>${dependency.scope}</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${sedona.jackson.version}</version>
-            <scope>${dependency.scope}</scope>
-        </dependency>
         <dependency>
             <groupId>org.wololo</groupId>
             <artifactId>jts2geojson</artifactId>
