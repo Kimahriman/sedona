@@ -210,17 +210,6 @@
             <version>${spark.version}</version>
             <scope>${dependency.scope}</scope>
         </dependency>
-        <dependency>
-            <groupId>org.scala-lang.modules</groupId>
-            <artifactId>scala-collection-compat_${scala.compat.version}</artifactId>
-            <version>2.5.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.scala-lang</groupId>
-                    <artifactId>scala-library</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
@@ -241,6 +230,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.scala-lang.modules</groupId>
+                <artifactId>scala-collection-compat_${scala.compat.version}</artifactId>
+                <version>2.5.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.scala-lang</groupId>
+                        <artifactId>scala-library</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <repositories>
         <repository>
             <id>maven2-repository.dev.java.net</id>

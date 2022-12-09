@@ -42,6 +42,10 @@
             <artifactId>sedona-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-collection-compat_${scala.compat.version}</artifactId>
+        </dependency>
 
         <!-- Test -->
         <dependency>

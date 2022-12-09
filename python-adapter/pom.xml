@@ -57,6 +57,10 @@
             <artifactId>sedona-sql-${spark.compat.version}_${scala.compat.version}</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-collection-compat_${scala.compat.version}</artifactId>
+        </dependency>
         <!--for CRS transformation-->
         <dependency>
             <groupId>org.datasyslab</groupId>
