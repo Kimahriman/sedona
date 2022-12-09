@@ -82,6 +82,25 @@ class functionTestScala extends TestBaseScala with Matchers with GeometrySample 
       assert(test.take(1)(0).get(0).asInstanceOf[Double] == -3.0)
     }
 
+    it("Passed ST_ZMax") {
+      val test = sparkSession.sql("SELECT ST_ZMax(ST_GeomFromWKT('POLYGON((0 0 0,0 5 0,5 0 0,0 0 5),(1 1 0,3 1 0,1 3 0,1 1 0))'))")
+      assert(test.take(1)(0).get(0).asInstanceOf[Double] == 5.0)
+    }
+    it("Passed ST_ZMax with no Z coordinate") {
+      val test = sparkSession.sql("SELECT ST_ZMax(ST_GeomFromWKT('POLYGON((0 0,0 5,5 0,0 0),(1 1,3 1,1 3,1 1))'))")
+      assert(test.take(1)(0).get(0) == null)
+    }
+
+    it("Passed ST_ZMin") {
+      val test = sparkSession.sql("SELECT ST_ZMin(ST_GeomFromWKT('LINESTRING(1 3 4, 5 6 7)'))")
+      assert(test.take(1)(0).get(0).asInstanceOf[Double] == 4.0)
+    }
+
+    it("Passed ST_ZMin with no Z coordinate") {
+      val test = sparkSession.sql("SELECT ST_ZMin(ST_GeomFromWKT('LINESTRING(1 3, 5 6)'))")
+      assert(test.take(1)(0).get(0) == null)
+    }
+
     it("Passed ST_Centroid") {
       var polygonWktDf = sparkSession.read.format("csv").option("delimiter", "\t").option("header", "false").load(mixedWktGeometryInputLocation)
       polygonWktDf.createOrReplaceTempView("polygontable")
@@ -373,6 +392,15 @@ class functionTestScala extends TestBaseScala with Matchers with GeometrySample 
       assert(Hex.encodeHexString(df.first().get(0).asInstanceOf[Array[Byte]]) == s)
     }
 
+    it("Passed ST_AsBinary with srid") {
+      // ST_AsBinary should return a WKB.
+      // WKB does not contain any srid.
+      val df = sparkSession.sql("SELECT ST_AsBinary(ST_SetSRID(ST_Point(1.0,1.0), 3021)), ST_AsBinary(ST_Point(1.0,1.0))")
+      val withSrid: Array[Byte] = df.first().getAs(0)
+      val withoutSrid: Array[Byte] = df.first().getAs(1)
+      assert(withSrid.seq == withoutSrid.seq)
+    }
+
     it("Passed ST_AsGML") {
       val df = sparkSession.sql("SELECT ST_GeomFromWKT('POLYGON((1 1, 8 1, 8 8, 1 8, 1 1))') AS polygon")
       df.createOrReplaceTempView("table")
@@ -429,6 +457,21 @@ class functionTestScala extends TestBaseScala with Matchers with GeometrySample 
       var test = sparkSession.sql("SELECT ST_NPoints(ST_GeomFromText('LINESTRING(77.29 29.07,77.42 29.26,77.27 29.31,77.29 29.07)'))")
       assert(test.take(1)(0).get(0).asInstanceOf[Int] == 4)
 
+    }
+
+    it("Passed ST_NDims with 2D point") {
+      val test = sparkSession.sql("SELECT ST_NDims(ST_GeomFromWKT('POINT(1 1)'))")
+      assert(test.take(1)(0).get(0).asInstanceOf[Int] == 2)
+    }
+
+    it("Passed ST_NDims with 3D point") {
+      val test = sparkSession.sql("SELECT ST_NDims(ST_GeomFromWKT('POINT(1 1 2)'))")
+      assert(test.take(1)(0).get(0).asInstanceOf[Int] == 3)
+    }
+
+    it("Passed ST_NDims with Z coordinates") {
+      val test = sparkSession.sql("SELECT ST_NDims(ST_GeomFromWKT('POINTZ(1 1 0.5)'))")
+      assert(test.take(1)(0).get(0).asInstanceOf[Int] == 3)
     }
 
     it("Passed ST_GeometryType") {

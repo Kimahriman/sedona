@@ -64,6 +64,32 @@ case class ST_YMin(inputExpressions: Seq[Expression])
   }
 }
 
+/**
+  * Return the Z maxima of the geometry.
+  *
+  * @param inputExpressions This function takes a geometry and returns the maximum of all Z-coordinate values.
+*/
+case class ST_ZMax(inputExpressions: Seq[Expression])
+  extends InferredUnaryExpression(Functions.zMax) with FoldableExpression {
+
+  protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]) = {
+    copy(inputExpressions = newChildren)
+  }
+}
+
+/**
+ * Return the Z minima of the geometry.
+ *
+ * @param inputExpressions This function takes a geometry and returns the minimum of all Z-coordinate values.
+*/
+case class ST_ZMin(inputExpressions: Seq[Expression])
+  extends InferredUnaryExpression(Functions.zMin) with FoldableExpression {
+
+  protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]) = {
+    copy(inputExpressions = newChildren)
+  }
+}
+
 case class ST_3DDistance(inputExpressions: Seq[Expression])
   extends InferredBinaryExpression(Functions.distance3d) with FoldableExpression {
 
@@ -92,6 +118,19 @@ case class ST_ConvexHull(inputExpressions: Seq[Expression])
   */
 case class ST_NPoints(inputExpressions: Seq[Expression])
   extends InferredUnaryExpression(Functions.nPoints) with FoldableExpression {
+
+  protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]) = {
+    copy(inputExpressions = newChildren)
+  }
+}
+
+/**
+  * Return the number of Dimensions in geometry.
+  *
+  * @param inputExpressions
+  */
+case class ST_NDims(inputExpressions: Seq[Expression])
+  extends InferredUnaryExpression(Functions.nDims) with FoldableExpression {
 
   protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]) = {
     copy(inputExpressions = newChildren)
@@ -298,14 +337,14 @@ case class ST_AsGeoJSON(inputExpressions: Seq[Expression])
 // TODO: sernetcdf is bundled with an ancient version of apache commons-codec, which
 // causes spark sql to throw NoSuchMethodError when folding binary expressions.
 case class ST_AsBinary(inputExpressions: Seq[Expression])
-  extends InferredUnaryExpression(Functions.asEWKB) {
+  extends InferredUnaryExpression(Functions.asWKB) {
 
   protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]) = {
     copy(inputExpressions = newChildren)
   }
 }
 
-// TODO: ST_AsEWKB is an alias of ST_AsBinary, which is also affected by the sernetcdf
+// TODO: ST_AsEWKB is similar to ST_AsBinary, which is also affected by the sernetcdf
 // problem.
 case class ST_AsEWKB(inputExpressions: Seq[Expression])
   extends InferredUnaryExpression(Functions.asEWKB) {

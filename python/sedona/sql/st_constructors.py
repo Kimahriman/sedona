@@ -1,3 +1,20 @@
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
 from functools import partial
 from typing import Optional, Union
 
@@ -20,6 +37,8 @@ __all__ = [
     "ST_PointFromText",
     "ST_PolygonFromEnvelope",
     "ST_PolygonFromText",
+    "ST_MLineFromText",
+    "ST_MPolyFromText"
 ]
 
 
@@ -204,3 +223,25 @@ def ST_PolygonFromText(coords: ColumnOrName, delimiter: ColumnOrName) -> Column:
     :rtype: Column
     """
     return _call_constructor_function("ST_PolygonFromText", (coords, delimiter))
+
+@validate_argument_types
+def ST_MPolyFromText(wkt: ColumnOrName) -> Column:
+    """Generate multiPolygon geometry from a multiPolygon WKT representation.
+
+    :param wkt: multiPolygon WKT string column to generate from.
+    :type wkt: ColumnOrName
+    :return: multiPolygon geometry generated from the wkt column.
+    :rtype: Column
+    """
+    return _call_constructor_function("ST_MPolyFromText", wkt)
+
+@validate_argument_types
+def ST_MLineFromText(wkt: ColumnOrName) -> Column:
+    """Generate multiLineString geometry from a multiLineString WKT representation.
+
+    :param wkt: multiLineString WKT string column to generate from.
+    :type wkt: ColumnOrName
+    :return: multiLineString geometry generated from the wkt column.
+    :rtype: Column
+    """
+    return _call_constructor_function("ST_MLineFromText", wkt)

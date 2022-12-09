@@ -513,6 +513,30 @@ SELECT ST_NPoints(polygondf.countyshape)
 FROM polygondf
 ```
 
+## ST_NDims
+
+Introduction: Returns the coordinate dimension of the geometry. It supports 2 - (x,y) , 3 - (x,y,z). Currently the geometry serializer in sedona-sql does not support M dimension, 4D geometries with ZM coordinates will have their M coordinates dropped and became 3D geometries. We're working on a new geometry serializer to resolve this issue.
+
+Format: `ST_NDims(geom: geometry)`
+
+Since: `v1.3.1`
+
+Spark SQL example with z co-rodinate:
+
+```SQL
+SELECT ST_NDims(ST_GeomFromEWKT('POINT(1 1 2)'))
+```
+
+Output: `3`
+
+Spark SQL example with x,y co-ordinate:
+
+```SQL
+SELECT ST_NDims(ST_GeomFromText('POINT(1 1)'))
+```
+
+Output: `2`
+
 ## ST_NumGeometries
 
 Introduction: Returns the number of Geometries. If geometry is a GEOMETRYCOLLECTION (or MULTI*) return the number of geometries, for single geometries will return 1.
@@ -832,3 +856,34 @@ SELECT ST_Z(ST_POINT(0.0 25.0 11.0))
 ```
 
 Output: `11.0`
+
+## ST_ZMax
+
+Introduction: Returns Z maxima of the given geometry or null if there is no Z coordinate.
+
+Format: `ST_ZMax(geom: geometry)`
+
+Since: `v1.3.1`
+
+Spark SQL example:
+```SQL
+SELECT ST_ZMax(ST_GeomFromText('POLYGON((0 0 1, 1 1 1, 1 2 1, 1 1 1, 0 0 1))'))
+```
+
+Output: `1.0`
+
+## ST_ZMin
+
+Introduction: Returns Z minima of the given geometry or null if there is no Z coordinate.
+
+Format: `ST_ZMin(geom: geometry)`
+
+Since: `v1.3.1`
+
+Spark SQL example:
+```SQL
+SELECT ST_ZMin(ST_GeomFromText('LINESTRING(1 3 4, 5 6 7)'))
+```
+
+Output: `4.0`
+

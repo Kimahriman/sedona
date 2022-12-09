@@ -1,3 +1,20 @@
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
 from functools import partial
 from typing import Optional, Union
 
@@ -56,6 +73,7 @@ __all__ = [
     "ST_Multi",
     "ST_Normalize",
     "ST_NPoints",
+    "ST_NDims",
     "ST_NumGeometries",
     "ST_NumInteriorRings",
     "ST_PointN",
@@ -80,6 +98,8 @@ __all__ = [
     "ST_YMax",
     "ST_YMin",
     "ST_Z",
+    "ST_ZMax",
+    "ST_ZMin",
 ]
 
 
@@ -739,6 +759,18 @@ def ST_NPoints(geometry: ColumnOrName) -> Column:
 
 
 @validate_argument_types
+def ST_NDims(geometry: ColumnOrName) -> Column:
+    """Return the number of dimensions contained in a geometry.
+
+    :param geometry: Geometry column to return for.
+    :type geometry: ColumnOrName
+    :return: Number of dimensions in a geometry column as an integer column.
+    :rtype: Column
+    """
+    return _call_st_function("ST_NDims", geometry)
+
+
+@validate_argument_types
 def ST_NumGeometries(geometry: ColumnOrName) -> Column:
     """Return the number of geometries contained in a multi-geometry.
 
@@ -1053,3 +1085,25 @@ def ST_Z(point: ColumnOrName) -> Column:
     :rtype: Column
     """
     return _call_st_function("ST_Z", point)
+
+@validate_argument_types
+def ST_ZMax(geometry: ColumnOrName) -> Column:
+    """Return the maximum Z coordinate of a geometry.
+
+    :param geometry: Geometry column to get the maximum Z coordinate from.
+    :type geometry: ColumnOrName
+    :return: Maximum Z coordinate for the geometry as a double column.
+    :rtype: Column
+    """
+    return _call_st_function("ST_ZMax", geometry)
+
+@validate_argument_types
+def ST_ZMin(geometry: ColumnOrName) -> Column:
+    """Return the minimum Z coordinate of a geometry.
+
+    :param geometry: Geometry column to get the minimum Z coordinate from.
+    :type geometry: ColumnOrName
+    :return: Minimum Z coordinate for the geometry as a double column.
+    :rtype: Column
+    """
+    return _call_st_function("ST_ZMin", geometry)

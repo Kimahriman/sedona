@@ -75,6 +75,14 @@ class constructorTestScala extends TestBaseScala {
       }
     }
 
+    it("Passed ST_GeomFromWKT invalid input") {
+      // Fail on non wkt strings
+      val thrown = intercept[Exception] {
+        sparkSession.sql("SELECT ST_GeomFromWKT('not wkt')").collect()
+      }
+      assert(thrown.getMessage == "Unknown geometry type: NOT (line 1)")
+    }
+
     it("Passed ST_LineFromText") {
       val geometryDf = Seq("Linestring(1 2, 3 4)").map(wkt => Tuple1(wkt)).toDF("geom")
       geometryDf.createOrReplaceTempView("linetable")
@@ -195,6 +203,25 @@ class constructorTestScala extends TestBaseScala {
       assert(df.columns(1) == "STATEFP")
       var spatialRDD2 = Adapter.toSpatialRdd(df, "geometry")
       Adapter.toDf(spatialRDD2, sparkSession).show(1)
+    }
+
+    it("Passed ST_MLineFromText") {
+      var mLineDf = sparkSession.sql("select ST_MLineFromText('MULTILINESTRING ((1 2, 3 4), (4 5, 6 7))')")
+      assert(mLineDf.count() == 1)
+    }
+    it("Passed ST_MLineFromText With Srid") {
+      var mLineDf = sparkSession.sql("select ST_MLineFromText('MULTILINESTRING ((1 2, 3 4), (4 5, 6 7))',4269)")
+      assert(mLineDf.count() == 1)
+    }
+
+    it("Passed ST_MPolyFromText") {
+      var mLineDf = sparkSession.sql("select ST_MPolyFromText('MULTIPOLYGON(((-70.916 42.1002,-70.9468 42.0946,-70.9765 42.0872 )))')")
+      assert(mLineDf.count() == 1)
+    }
+
+    it("Passed ST_MPolyFromText With Srid") {
+      var mLineDf = sparkSession.sql("select ST_MPolyFromText('MULTIPOLYGON(((-70.916 42.1002,-70.9468 42.0946,-70.9765 42.0872 )))',4269)")
+      assert(mLineDf.count() == 1)
     }
   }
 }

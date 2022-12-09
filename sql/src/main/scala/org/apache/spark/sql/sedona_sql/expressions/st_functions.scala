@@ -181,6 +181,9 @@ object st_functions extends DataFrameAPI {
   def ST_NPoints(geometry: Column): Column = wrapExpression[ST_NPoints](geometry)
   def ST_NPoints(geometry: String): Column = wrapExpression[ST_NPoints](geometry)
 
+  def ST_NDims(geometry: Column): Column = wrapExpression[ST_NDims](geometry)
+  def ST_NDims(geometry: String): Column = wrapExpression[ST_NDims](geometry)
+
   def ST_NumGeometries(geometry: Column): Column = wrapExpression[ST_NumGeometries](geometry)
   def ST_NumGeometries(geometry: String): Column = wrapExpression[ST_NumGeometries](geometry)
 
@@ -254,4 +257,10 @@ object st_functions extends DataFrameAPI {
 
   def ST_Z(point: Column): Column = wrapExpression[ST_Z](point)
   def ST_Z(point: String): Column = wrapExpression[ST_Z](point)
+
+  def ST_ZMax(geometry: Column): Column = wrapExpression[ST_ZMax](geometry)
+  def ST_ZMax(geometry: String): Column = wrapExpression[ST_ZMax](geometry)
+
+  def ST_ZMin(geometry: Column): Column = wrapExpression[ST_ZMin](geometry)
+  def ST_ZMin(geometry: String): Column = wrapExpression[ST_ZMin](geometry)
 }

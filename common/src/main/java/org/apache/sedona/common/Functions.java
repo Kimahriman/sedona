@@ -155,6 +155,28 @@ public class Functions {
         return max;
     }
 
+    public static Double zMax(Geometry geometry) {
+        Coordinate[] points = geometry.getCoordinates();
+        double max = Double.MIN_VALUE;
+        for (int i=0; i < points.length; i++) {
+            if(java.lang.Double.isNaN(points[i].getZ()))
+                continue;
+            max = Math.max(points[i].getZ(), max);
+        }
+        return max == Double.MIN_VALUE ? null : max;
+    }
+
+    public static Double zMin(Geometry geometry) {
+        Coordinate[] points = geometry.getCoordinates();
+        double min = Double.MAX_VALUE;
+        for(int i=0; i < points.length; i++){
+            if(java.lang.Double.isNaN(points[i].getZ()))
+                continue;
+            min = Math.min(points[i].getZ(), min);
+        }
+        return min == Double.MAX_VALUE ? null : min;
+    }
+
     public static Geometry transform(Geometry geometry, String sourceCRS, String targetCRS)
         throws FactoryException, TransformException {
         return transform(geometry, sourceCRS, targetCRS, false);
@@ -242,6 +264,10 @@ public class Functions {
         return GeomUtils.getEWKB(geometry);
     }
 
+    public static byte[] asWKB(Geometry geometry) {
+        return GeomUtils.getWKB(geometry);
+    }
+
     public static String asGeoJson(Geometry geometry) {
         if (geometry == null) {
             return null;
@@ -252,6 +278,24 @@ public class Functions {
 
     public static int nPoints(Geometry geometry) {
         return geometry.getNumPoints();
+    }
+
+    public static int nDims(Geometry geometry) {
+        int count_dimension =0;
+        Coordinate geom = geometry.getCoordinate();
+        Double x_cord = geom.getX();
+        Double y_cord = geom.getY();
+        Double z_cord = geom.getZ();
+        Double m_cord = geom.getM();
+        if(!java.lang.Double.isNaN(x_cord))
+            count_dimension++;
+        if(!java.lang.Double.isNaN(y_cord))
+            count_dimension++;
+        if(!java.lang.Double.isNaN(z_cord))
+            count_dimension++;
+        if(!java.lang.Double.isNaN(m_cord))
+            count_dimension++;
+        return count_dimension;
     }
 
     public static int numGeometries(Geometry geometry) {
