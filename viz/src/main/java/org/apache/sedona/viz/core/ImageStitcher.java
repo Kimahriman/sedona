@@ -21,10 +21,11 @@ package org.apache.sedona.viz.core;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.log4j.Logger;
 import org.apache.sedona.viz.utils.ImageType;
 import org.apache.sedona.viz.utils.RasterizationUtils;
 import org.apache.sedona.viz.utils.S3Operator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 import javax.imageio.ImageIO;
@@ -46,7 +47,7 @@ public class ImageStitcher
     /**
      * The Constant logger.
      */
-    final static Logger logger = Logger.getLogger(ImageStitcher.class);
+    final static Logger logger = LoggerFactory.getLogger(ImageStitcher.class);
 
     /**
      * Stitch image partitions from local file.

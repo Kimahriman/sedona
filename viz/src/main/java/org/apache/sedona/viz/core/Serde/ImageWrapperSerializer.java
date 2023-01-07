@@ -22,8 +22,9 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import org.apache.log4j.Logger;
 import org.apache.sedona.viz.core.ImageSerializableWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 
@@ -34,7 +35,7 @@ import java.io.IOException;
 public class ImageWrapperSerializer
         extends Serializer<ImageSerializableWrapper>
 {
-    final static Logger log = Logger.getLogger(ImageWrapperSerializer.class);
+    final static Logger log = LoggerFactory.getLogger(ImageWrapperSerializer.class);
 
     @Override
     public void write(Kryo kryo, Output output, ImageSerializableWrapper object)

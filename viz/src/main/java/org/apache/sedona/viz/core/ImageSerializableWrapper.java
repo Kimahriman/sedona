@@ -18,7 +18,8 @@
  */
 package org.apache.sedona.viz.core;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 
@@ -36,7 +37,7 @@ import java.io.Serializable;
 public class ImageSerializableWrapper
         implements Serializable
 {
-    final static Logger log = Logger.getLogger(ImageSerializableWrapper.class);
+    final static Logger log = LoggerFactory.getLogger(ImageSerializableWrapper.class);
     /**
      * The image.
      */

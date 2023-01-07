@@ -18,11 +18,12 @@
  */
 package org.apache.sedona.viz.core;
 
-import org.apache.log4j.Logger;
 import org.apache.sedona.viz.extension.coloringRule.ColoringRuleFactory;
 import org.apache.sedona.viz.extension.coloringRule.LinearFunction;
 import org.apache.sedona.viz.extension.photoFilter.GaussianBlur;
 import org.locationtech.jts.geom.Envelope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 import java.io.Serializable;
@@ -39,7 +40,7 @@ public class GlobalParameter
     /**
      * The Constant logger.
      */
-    final static Logger logger = Logger.getLogger(GlobalParameter.class);
+    final static Logger logger = LoggerFactory.getLogger(GlobalParameter.class);
 
     /**
      * The resolution X.
@@ -387,7 +388,7 @@ public class GlobalParameter
             this.overwriteExistingImages = Boolean.parseBoolean(value);
         }
         else {
-            logger.error(new Exception("[Babylon][set] No such parameter: " + key));
+            logger.error("[Babylon][set] No such parameter: {}", key);
         }
         return true;
     }

@@ -18,8 +18,6 @@
  */
 package org.apache.sedona.viz.showcase;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.sedona.core.enums.FileDataSplitter;
 import org.apache.sedona.core.enums.GridType;
 import org.apache.sedona.core.enums.IndexType;
@@ -373,8 +371,6 @@ public class Example
     {
         SparkConf sparkConf = new SparkConf().setAppName("SedonaVizDemo").setMaster("local[4]");
         sparkContext = new JavaSparkContext(sparkConf);
-        Logger.getLogger("org").setLevel(Level.WARN);
-        Logger.getLogger("akka").setLevel(Level.WARN);
         prop = new Properties();
 
         String resourcePath = "src/test/resources/";

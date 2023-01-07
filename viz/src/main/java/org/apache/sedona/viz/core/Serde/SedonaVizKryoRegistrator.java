@@ -19,16 +19,17 @@
 package org.apache.sedona.viz.core.Serde;
 
 import com.esotericsoftware.kryo.Kryo;
-import org.apache.log4j.Logger;
 import org.apache.sedona.core.serde.SedonaKryoRegistrator;
 import org.apache.sedona.viz.core.ImageSerializableWrapper;
 import org.apache.sedona.viz.utils.Pixel;
 import org.apache.spark.serializer.KryoRegistrator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SedonaVizKryoRegistrator
         implements KryoRegistrator
 {
-    final static Logger log = Logger.getLogger(SedonaVizKryoRegistrator.class);
+    final static Logger log = LoggerFactory.getLogger(SedonaVizKryoRegistrator.class);
 
     @Override
     public void registerClasses(Kryo kryo)

@@ -18,9 +18,10 @@
  */
 package org.apache.sedona.viz.core;
 
-import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class VectorOverlayOperator
     /**
      * The Constant logger.
      */
-    final static Logger logger = Logger.getLogger(VectorOverlayOperator.class);
+    final static Logger logger = LoggerFactory.getLogger(VectorOverlayOperator.class);
     /**
      * The back vector image.
      */

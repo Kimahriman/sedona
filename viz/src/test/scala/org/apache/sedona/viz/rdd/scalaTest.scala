@@ -23,7 +23,6 @@ import java.io.FileInputStream
 import java.util.Properties
 
 import org.locationtech.jts.geom.Envelope
-import org.apache.log4j.{Level, Logger}
 import org.apache.sedona.core.enums.{FileDataSplitter, GridType, IndexType}
 import org.apache.sedona.core.formatMapper.EarthdataHDFPointMapper
 import org.apache.sedona.core.spatialOperator.JoinQuery
@@ -42,8 +41,6 @@ class scalaTest extends FunSpec with BeforeAndAfterAll{
   sparkConf.set("spark.serializer", classOf[KryoSerializer].getName)
   sparkConf.set("spark.kryo.registrator", classOf[SedonaVizKryoRegistrator].getName)
   var sparkContext:SparkContext = _
-  Logger.getLogger("org").setLevel(Level.WARN)
-  Logger.getLogger("akka").setLevel(Level.WARN)
   val prop = new Properties()
   val resourceFolder = System.getProperty("user.dir") + "/../core/src/test/resources/"
   val demoOutputPath = "target/scala/demo"

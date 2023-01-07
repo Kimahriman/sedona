@@ -22,7 +22,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Logger;
 import org.apache.sedona.viz.utils.ImageType;
 import org.apache.sedona.viz.utils.RasterizationUtils;
 import org.apache.sedona.viz.utils.S3Operator;
@@ -30,6 +29,8 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.VoidFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 import javax.imageio.ImageIO;
@@ -55,7 +56,7 @@ public class ImageGenerator
     /**
      * The Constant logger.
      */
-    final static Logger logger = Logger.getLogger(ImageGenerator.class);
+    final static Logger logger = LoggerFactory.getLogger(ImageGenerator.class);
 
     /**
      * Save raster image as local file.

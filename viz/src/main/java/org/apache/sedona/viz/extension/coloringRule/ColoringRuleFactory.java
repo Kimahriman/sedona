@@ -18,8 +18,9 @@
  */
 package org.apache.sedona.viz.extension.coloringRule;
 
-import org.apache.log4j.Logger;
 import org.apache.sedona.viz.core.ColoringRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO: Auto-generated Javadoc
 
@@ -32,7 +33,7 @@ public class ColoringRuleFactory
     /**
      * The Constant logger.
      */
-    final static Logger logger = Logger.getLogger(ColoringRuleFactory.class);
+    final static Logger logger = LoggerFactory.getLogger(ColoringRuleFactory.class);
 
     /**
      * Gets the coloring rule.

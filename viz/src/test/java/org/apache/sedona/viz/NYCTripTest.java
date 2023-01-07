@@ -33,8 +33,6 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
@@ -198,9 +196,6 @@ public class NYCTripTest
     {
         SparkConf sparkConf = new SparkConf().setAppName("HeatmapTest").setMaster("local[4]");
         sparkContext = new JavaSparkContext(sparkConf);
-        Logger.getLogger("org.apache").setLevel(Level.WARN);
-        Logger.getLogger("org.datasyslab").setLevel(Level.INFO);
-        Logger.getLogger("akka").setLevel(Level.WARN);
         prop = new Properties();
         inputProp = ScatterplotTest.class.getClassLoader().getResourceAsStream("point.test.properties");
         prop.load(inputProp);

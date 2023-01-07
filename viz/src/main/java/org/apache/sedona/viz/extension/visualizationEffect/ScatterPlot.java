@@ -18,12 +18,13 @@
  */
 package org.apache.sedona.viz.extension.visualizationEffect;
 
-import org.apache.log4j.Logger;
 import org.apache.sedona.core.spatialRDD.SpatialRDD;
 import org.apache.sedona.viz.core.VisualizationOperator;
 import org.apache.sedona.viz.utils.ColorizeOption;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.locationtech.jts.geom.Envelope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO: Auto-generated Javadoc
 
@@ -37,7 +38,7 @@ public class ScatterPlot
     /**
      * The Constant logger.
      */
-    final static Logger logger = Logger.getLogger(ScatterPlot.class);
+    final static Logger logger = LoggerFactory.getLogger(ScatterPlot.class);
 
     /**
      * Instantiates a new scatter plot.

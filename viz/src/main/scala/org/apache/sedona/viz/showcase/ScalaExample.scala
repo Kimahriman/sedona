@@ -22,7 +22,6 @@ import java.awt.Color
 import java.io.FileInputStream
 import java.util.Properties
 
-import org.apache.log4j.{Level, Logger}
 import org.apache.sedona.core.enums.{FileDataSplitter, GridType, IndexType}
 import org.apache.sedona.core.formatMapper.EarthdataHDFPointMapper
 import org.apache.sedona.core.spatialOperator.JoinQuery
@@ -41,8 +40,6 @@ import org.locationtech.jts.geom.Envelope
 object ScalaExample extends App {
   val sparkConf = new SparkConf().setAppName("SedonaVizDemo").setMaster("local[4]")
   val sparkContext = new SparkContext(sparkConf)
-  Logger.getLogger("org").setLevel(Level.WARN)
-  Logger.getLogger("akka").setLevel(Level.WARN)
   val prop = new Properties()
   val resourcePath = "src/test/resources/"
   val demoOutputPath = "target/demo"

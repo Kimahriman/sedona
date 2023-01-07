@@ -18,13 +18,14 @@
  */
 package org.apache.sedona.viz.extension.visualizationEffect;
 
-import org.apache.log4j.Logger;
 import org.apache.sedona.viz.core.VisualizationOperator;
 import org.apache.sedona.viz.utils.ColorizeOption;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Polygon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 
@@ -40,7 +41,7 @@ public class ChoroplethMap
     /**
      * The Constant logger.
      */
-    final static Logger logger = Logger.getLogger(ChoroplethMap.class);
+    final static Logger logger = LoggerFactory.getLogger(ChoroplethMap.class);
 
     /**
      * Instantiates a new choropleth map.

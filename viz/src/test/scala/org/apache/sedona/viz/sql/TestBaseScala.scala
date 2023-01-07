@@ -18,7 +18,6 @@
  */
 package org.apache.sedona.viz.sql
 
-import org.apache.log4j.{Level, Logger}
 import org.apache.sedona.sql.utils.SedonaSQLRegistrator
 import org.apache.sedona.viz.core.Serde.SedonaVizKryoRegistrator
 import org.apache.sedona.viz.sql.utils.SedonaVizRegistrator
@@ -27,10 +26,6 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.scalatest.{BeforeAndAfterAll, FunSpec}
 
 trait TestBaseScala extends FunSpec with BeforeAndAfterAll{
-  Logger.getLogger("org.apache").setLevel(Level.WARN)
-  Logger.getLogger("com").setLevel(Level.WARN)
-  Logger.getLogger("akka").setLevel(Level.WARN)
-  Logger.getLogger("org.datasyslab").setLevel(Level.WARN)
 
   var spark:SparkSession = _
   val resourceFolder = System.getProperty("user.dir") + "/../core/src/test/resources/"

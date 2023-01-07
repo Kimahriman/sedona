@@ -18,7 +18,6 @@
  */
 package org.apache.sedona.viz.core;
 
-import org.apache.log4j.Logger;
 import org.apache.sedona.core.spatialRDD.SpatialRDD;
 import org.apache.sedona.viz.utils.ColorizeOption;
 import org.apache.sedona.viz.utils.Pixel;
@@ -34,6 +33,8 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 import java.awt.Color;
@@ -112,7 +113,7 @@ public abstract class VisualizationOperator
     /**
      * The Constant logger.
      */
-    final static Logger logger = Logger.getLogger(VisualizationOperator.class);
+    final static Logger logger = LoggerFactory.getLogger(VisualizationOperator.class);
     /**
      * The raster image.
      */

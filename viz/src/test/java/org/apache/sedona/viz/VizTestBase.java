@@ -21,8 +21,6 @@ package org.apache.sedona.viz;
 import org.apache.sedona.core.enums.FileDataSplitter;
 import org.apache.sedona.viz.core.Serde.SedonaVizKryoRegistrator;
 import org.locationtech.jts.geom.Envelope;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.serializer.KryoSerializer;
@@ -144,8 +142,6 @@ public class VizTestBase
         conf.set("spark.kryo.registrator", SedonaVizKryoRegistrator.class.getName());
 
         sparkContext = new JavaSparkContext(conf);
-        Logger.getLogger("org").setLevel(Level.WARN);
-        Logger.getLogger("akka").setLevel(Level.WARN);
 
         String resourceFolder = System.getProperty("user.dir") + "/../core/src/test/resources/";
 

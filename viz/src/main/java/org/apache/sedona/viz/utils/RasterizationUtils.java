@@ -18,7 +18,6 @@
  */
 package org.apache.sedona.viz.utils;
 
-import org.apache.log4j.Logger;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -26,6 +25,8 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 import java.io.Serializable;
@@ -44,7 +45,7 @@ public class RasterizationUtils
     /**
      * The Constant logger.
      */
-    final static Logger logger = Logger.getLogger(RasterizationUtils.class);
+    final static Logger logger = LoggerFactory.getLogger(RasterizationUtils.class);
 
     /**
      * Find one pixel coordinate.

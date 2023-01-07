@@ -27,7 +27,8 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 
@@ -40,7 +41,7 @@ import java.io.InputStream;
 public class S3Operator
 {
 
-    public final static Logger logger = Logger.getLogger(S3Operator.class);
+    public final static Logger logger = LoggerFactory.getLogger(S3Operator.class);
     private final AmazonS3 s3client;
 
     public S3Operator(String regionName, String accessKey, String secretKey)
