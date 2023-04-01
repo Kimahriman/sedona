@@ -21,7 +21,7 @@ package org.apache.spark.sql.sedona_sql.expressions
 
 import org.apache.sedona.sql.utils.GeometrySerializer
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.{Expression, SerdeAware}
 import org.apache.spark.sql.catalyst.util.{ArrayData, GenericArrayData}
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.jts.geom.{Geometry, GeometryFactory, Point}

@@ -22,7 +22,7 @@ import org.apache.sedona.common.Functions
 import org.apache.sedona.sql.utils.GeometrySerializer
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, ImplicitCastInputTypes}
+import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, ImplicitCastInputTypes, SerdeAware}
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.sedona_sql.UDT.GeometryUDT
 import org.apache.spark.sql.sedona_sql.expressions.collect.Collect
@@ -49,7 +49,7 @@ case class ST_Distance(inputExpressions: Seq[Expression])
 
 
 case class ST_YMax(inputExpressions: Seq[Expression])
-  extends InferredUnaryExpression(Functions.yMax) with FoldableExpression {
+  extends InferredUnaryExpression(Functions.yMax) {
 
   protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]) = {
     copy(inputExpressions = newChildren)

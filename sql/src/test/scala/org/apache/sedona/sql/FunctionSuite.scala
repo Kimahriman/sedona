@@ -21,8 +21,11 @@ package org.apache.sedona.sql
 
 import org.apache.commons.codec.binary.Hex
 import org.apache.sedona.sql.implicits._
-import org.apache.spark.sql.functions._
+import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.catalyst.expressions.CodegenObjectFactoryMode
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.internal.SQLConf
 import org.geotools.referencing.CRS
 import org.locationtech.jts.algorithm.MinimumBoundingCircle
 import org.locationtech.jts.geom.{Geometry, Polygon}
@@ -37,7 +40,7 @@ import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
 
-class functionTestScala extends TestBaseScala with Matchers with GeometrySample with GivenWhenThen {
+abstract class FunctionSuiteBase extends TestBaseScala with Matchers with GeometrySample with GivenWhenThen {
 
   import sparkSession.implicits._
 
@@ -1818,4 +1821,11 @@ class functionTestScala extends TestBaseScala with Matchers with GeometrySample 
       assert(textResult==expected)
     }
   }
+}
+
+class CodegenFunctionSuite extends FunctionSuiteBase
+
+class EvalFunctionSuite extends FunctionSuiteBase {
+  override def sparkConf: SparkConf = super.sparkConf
+    .set(SQLConf.CODEGEN_FACTORY_MODE.key, CodegenObjectFactoryMode.CODEGEN_ONLY.toString)
 }

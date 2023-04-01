@@ -20,7 +20,8 @@ package org.apache.spark.sql.sedona_sql.expressions
 
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.codegen._
+import org.apache.spark.sql.catalyst.expressions.codegen.Block._
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.sedona_sql.expressions.implicits._
 import org.apache.spark.sql.sedona_sql.UDT.GeometryUDT
@@ -152,6 +153,16 @@ object InferredTypes {
     }
   }
 
+  def buildCodegenExtractor[T: TypeTag]: String => String = {
+    if (typeOf[T] =:= typeOf[Geometry]) {
+      input: String => s"org.apache.sedona.common.geometrySerde.GeometrySerializer.deserialize($input)"
+    } else if (typeOf[T] =:= typeOf[String]) {
+      input: String => s"$input.toString()"
+    } else {
+      input: String => input
+    }
+  }
+
   def buildSerializer[T: TypeTag]: T => Any = {
     if (typeOf[T] =:= typeOf[Geometry]) {
       output: T => if (output != null) {
@@ -174,6 +185,26 @@ object InferredTypes {
         }
     } else {
       output: T => output
+    }
+  }
+
+  def buildCodegenSerializer[T: TypeTag]: String => String = {
+    if (typeOf[T] =:= typeOf[Geometry]) {
+      output: String => s"org.apache.sedona.common.geometrySerde.GeometrySerializer.serialize((${typeOf[T]})$output)"
+    } else if (typeOf[T] =:= typeOf[String]) {
+      output: String => s"UTF8String.fromString((String)$output)"
+    } else {
+      output: String => output
+    }
+  }
+
+  def getDeserializedType[T: TypeTag]: Option[Class[_]] = {
+    if (typeOf[T] =:= typeOf[Geometry]) {
+      Some(classOf[Geometry])
+    } else if (typeOf[T] =:= typeOf[String]) {
+      Some(classOf[String])
+    } else {
+      None
     }
   }
 
@@ -207,14 +238,16 @@ object InferredTypes {
 abstract class InferredUnaryExpression[A1: InferrableType, R: InferrableType]
     (f: (A1) => R)
     (implicit val a1Tag: TypeTag[A1], implicit val rTag: TypeTag[R])
-    extends Expression with ImplicitCastInputTypes with SerdeAware with CodegenFallback with Serializable {
+    extends Expression
+    with ImplicitCastInputTypes
+    with SerdeAware
+    with SerdeAwareCodegen
+    with Serializable {
   import InferredTypes._
 
   def inputExpressions: Seq[Expression]
 
   override def children: Seq[Expression] = inputExpressions
-
-  override def toString: String = s" **${getClass.getName}**  "
 
   override def inputTypes: Seq[AbstractDataType] = Seq(inferSparkType[A1])
 
@@ -223,7 +256,6 @@ abstract class InferredUnaryExpression[A1: InferrableType, R: InferrableType]
   override def dataType = inferSparkType[R]
 
   lazy val extract = buildExtractor[A1](inputExpressions(0))
-
   lazy val serialize = buildSerializer[R]
 
   override def eval(input: InternalRow): Any = serialize(evalWithoutSerialization(input).asInstanceOf[R])
@@ -236,19 +268,72 @@ abstract class InferredUnaryExpression[A1: InferrableType, R: InferrableType]
       null
     }
   }
+
+  override def internalDoGenCode(ctx: CodegenContext, ev: ExprCode, serializeResult: Boolean): ExprCode = {
+    val child = inputExpressions(0)
+    val (childGen, childValue) = genChildCode(ctx, child, getDeserializedType[A1], buildCodegenExtractor[A1])
+
+    val func = ctx.addReferenceObj("func", f, s"scala.Function1")
+    val boxedType = CodeGenerator.boxedType(dataType)
+    val deserializedType = getDeserializedType[R]
+    val codegenSerialize = buildCodegenSerializer[R]
+
+    assert(serializeResult || deserializedType.isDefined,
+      "No deserialized type and requested no serialization")
+
+    val intermediateVar = ctx.freshName("value")
+
+    val resultSerializer: String => String = if (serializeResult) {
+      s: String => s"($boxedType)${codegenSerialize(s)}"
+    } else {
+      s: String => s"(${deserializedType.get.getCanonicalName})$s"
+    }
+
+    // We need to check if the result is null even if the child isn't null
+    val resultCode = if (nullable) {
+      s"""
+        ${ev.isNull} = false;
+        Object $intermediateVar = $func.apply($childValue);
+        if ($intermediateVar == null) {
+          ${ev.isNull} = true;
+        } else {
+          ${ev.value} = ${resultSerializer(intermediateVar)};
+        }
+      """
+    } else {
+      val resultValue = s"$func.apply($childValue)"
+      s"${ev.value} = ${resultSerializer(resultValue)};"
+    }
+    
+    if (nullable) {
+      val nullSafeEval = ctx.nullSafeExec(child.nullable, childGen.isNull)(resultCode)
+      ev.copy(code = code"""
+        ${childGen.code}
+        boolean ${ev.isNull} = true;
+        ${ev.value.javaType.getCanonicalName()} ${ev.value} = ${CodeGenerator.defaultValue(dataType)};
+        $nullSafeEval""")
+    } else {
+      ev.copy(code = code"""
+        ${childGen.code}
+        ${ev.value.javaType.getCanonicalName()} ${ev.value} = ${CodeGenerator.defaultValue(dataType)};
+        $resultCode""", isNull = FalseLiteral)
+    }
+  }
 }
 
 abstract class InferredBinaryExpression[A1: InferrableType, A2: InferrableType, R: InferrableType]
     (f: (A1, A2) => R)
     (implicit val a1Tag: TypeTag[A1], implicit val a2Tag: TypeTag[A2], implicit val rTag: TypeTag[R])
-    extends Expression with ImplicitCastInputTypes with SerdeAware with CodegenFallback with Serializable {
+    extends Expression
+    with ImplicitCastInputTypes
+    with SerdeAware
+    with SerdeAwareCodegen
+    with Serializable {
   import InferredTypes._
 
   def inputExpressions: Seq[Expression]
 
   override def children: Seq[Expression] = inputExpressions
-
-  override def toString: String = s" **${getClass.getName}**  "
 
   override def inputTypes: Seq[AbstractDataType] = Seq(inferSparkType[A1], inferSparkType[A2])
 
@@ -258,7 +343,6 @@ abstract class InferredBinaryExpression[A1: InferrableType, A2: InferrableType, 
 
   lazy val extractLeft = buildExtractor[A1](inputExpressions(0))
   lazy val extractRight = buildExtractor[A2](inputExpressions(1))
-
   lazy val serialize = buildSerializer[R]
 
   override def eval(input: InternalRow): Any = serialize(evalWithoutSerialization(input).asInstanceOf[R])
@@ -272,19 +356,79 @@ abstract class InferredBinaryExpression[A1: InferrableType, A2: InferrableType, 
       null
     }
   }
+
+  override def internalDoGenCode(ctx: CodegenContext, ev: ExprCode, serializeResult: Boolean): ExprCode = {
+    val left = inputExpressions(0)
+    val right = inputExpressions(1)
+
+    val (leftGen, leftValue) = genChildCode(ctx, left, getDeserializedType[A1], buildCodegenExtractor[A1])
+    val (rightGen, rightValue) = genChildCode(ctx, right, getDeserializedType[A2], buildCodegenExtractor[A2])
+
+    val func = ctx.addReferenceObj("func", f, s"scala.Function2")
+    val boxedType = CodeGenerator.boxedType(dataType)
+    val deserializedType = getDeserializedType[R]
+    val codegenSerialize = buildCodegenSerializer[R]
+
+    val resultSerializer: String => String = if (serializeResult) {
+      s: String => s"($boxedType)${codegenSerialize(s)}"
+    } else {
+      s: String => s"(${deserializedType.get.getCanonicalName})$s"
+    }
+
+    val intermediateVar = ctx.freshName("value")
+    val resultCode = if (nullable) {
+      s"""
+        Object $intermediateVar = $func.apply($leftValue, $rightValue);
+        if ($intermediateVar == null) {
+          ${ev.isNull} = true;
+        } else {
+          ${ev.value} = ${resultSerializer(intermediateVar)};
+        }
+      """
+    } else {
+      val resultValue = s"$func.apply($leftValue, $rightValue)"
+      s"${ev.value} = ${resultSerializer(resultValue)};"
+    }
+
+    if (nullable) {
+      val nullSafeEval =
+        leftGen.code + ctx.nullSafeExec(left.nullable, leftGen.isNull) {
+          rightGen.code + ctx.nullSafeExec(right.nullable, rightGen.isNull) {
+            s"""
+              ${ev.isNull} = false;
+              $resultCode
+            """
+          }
+      }
+
+      ev.copy(code = code"""
+        boolean ${ev.isNull} = true;
+        ${ev.value.javaType.getCanonicalName()} ${ev.value} = ${CodeGenerator.defaultValue(dataType)};
+        $nullSafeEval
+      """)
+    } else {
+      ev.copy(code = code"""
+        ${leftGen.code}
+        ${rightGen.code}
+        ${ev.value.javaType.getCanonicalName()} ${ev.value} = ${CodeGenerator.defaultValue(dataType)};
+        $resultCode""", isNull = FalseLiteral)
+    }
+  }
 }
 
 abstract class InferredTernaryExpression[A1: InferrableType, A2: InferrableType, A3: InferrableType, R: InferrableType]
 (f: (A1, A2, A3) => R)
 (implicit val a1Tag: TypeTag[A1], implicit val a2Tag: TypeTag[A2], implicit val a3Tag: TypeTag[A3], implicit val rTag: TypeTag[R])
-  extends Expression with ImplicitCastInputTypes with SerdeAware with CodegenFallback with Serializable {
+  extends Expression
+  with ImplicitCastInputTypes
+  with SerdeAware
+  with SerdeAwareCodegen
+  with Serializable {
   import InferredTypes._
 
   def inputExpressions: Seq[Expression]
 
   override def children: Seq[Expression] = inputExpressions
-
-  override def toString: String = s" **${getClass.getName}**  "
 
   override def inputTypes: Seq[AbstractDataType] = Seq(inferSparkType[A1], inferSparkType[A2], inferSparkType[A3])
 
@@ -310,19 +454,84 @@ abstract class InferredTernaryExpression[A1: InferrableType, A2: InferrableType,
       null
     }
   }
+
+  override def internalDoGenCode(ctx: CodegenContext, ev: ExprCode, serializeResult: Boolean): ExprCode = {
+    val first = inputExpressions(0)
+    val second = inputExpressions(1)
+    val third = inputExpressions(2)
+
+    val (firstGen, firstValue) = genChildCode(ctx, first, getDeserializedType[A1], buildCodegenExtractor[A1])
+    val (secondGen, secondValue) = genChildCode(ctx, second, getDeserializedType[A2], buildCodegenExtractor[A2])
+    val (thirdGen, thirdValue) = genChildCode(ctx, third, getDeserializedType[A3], buildCodegenExtractor[A3])
+
+    val func = ctx.addReferenceObj("func", f, s"scala.Function3")
+    val boxedType = CodeGenerator.boxedType(dataType)
+    val deserializedType = getDeserializedType[R]
+    val codegenSerialize = buildCodegenSerializer[R]
+
+    val resultSerializer: String => String = if (serializeResult) {
+      s: String => s"($boxedType)${codegenSerialize(s)}"
+    } else {
+      s: String => s"(${deserializedType.get.getCanonicalName})$s"
+    }
+
+    val intermediateVar = ctx.freshName("value")
+    val resultCode = if (nullable) {
+      s"""
+        Object $intermediateVar = $func.apply($firstValue, $secondValue, $thirdValue);
+        if ($intermediateVar == null) {
+          ${ev.isNull} = true;
+        } else {
+          ${ev.value} = ${resultSerializer(intermediateVar)};
+        }
+      """
+    } else {
+      val resultValue = s"$func.apply($firstValue, $secondValue, $thirdValue)"
+      s"${ev.value} = ${resultSerializer(resultValue)};"
+    }
+
+    if (nullable) {
+      val nullSafeEval =
+        firstGen.code + ctx.nullSafeExec(first.nullable, firstGen.isNull) {
+          secondGen.code + ctx.nullSafeExec(second.nullable, secondGen.isNull) {
+            thirdGen.code + ctx.nullSafeExec(third.nullable, thirdGen.isNull) {
+              s"""
+                ${ev.isNull} = false;
+                $resultCode
+              """
+            }
+          }
+        }
+
+      ev.copy(code = code"""
+        boolean ${ev.isNull} = true;
+        ${ev.value.javaType.getCanonicalName()} ${ev.value} = ${CodeGenerator.defaultValue(dataType)};
+        $nullSafeEval
+      """)
+    } else {
+      ev.copy(code = code"""
+        ${firstGen.code}
+        ${secondGen.code}
+        ${thirdGen.code}
+        ${ev.value.javaType.getCanonicalName()} ${ev.value} = ${CodeGenerator.defaultValue(dataType)};
+        $resultCode""", isNull = FalseLiteral)
+    }
+  }
 }
 
 abstract class InferredQuarternaryExpression[A1: InferrableType, A2: InferrableType, A3: InferrableType, A4: InferrableType, R: InferrableType]
 (f: (A1, A2, A3, A4) => R)
 (implicit val a1Tag: TypeTag[A1], implicit val a2Tag: TypeTag[A2], implicit val a3Tag: TypeTag[A3], implicit val a4Tag: TypeTag[A4], implicit val rTag: TypeTag[R])
-  extends Expression with ImplicitCastInputTypes with CodegenFallback with Serializable {
+  extends Expression
+  with ImplicitCastInputTypes
+  with SerdeAware
+  with SerdeAwareCodegen
+  with Serializable {
   import InferredTypes._
 
   def inputExpressions: Seq[Expression]
 
   override def children: Seq[Expression] = inputExpressions
-
-  override def toString: String = s" **${getClass.getName}**  "
 
   override def inputTypes: Seq[AbstractDataType] = Seq(inferSparkType[A1], inferSparkType[A2], inferSparkType[A3], inferSparkType[A4])
 
@@ -337,15 +546,85 @@ abstract class InferredQuarternaryExpression[A1: InferrableType, A2: InferrableT
 
   lazy val serialize = buildSerializer[R]
 
-  override def eval(input: InternalRow): Any = {
+  override def eval(input: InternalRow): Any = serialize(evalWithoutSerialization(input).asInstanceOf[R])
+
+  override def evalWithoutSerialization(input: InternalRow): Any = {
     val first = extractFirst(input)
     val second = extractSecond(input)
     val third = extractThird(input)
     val forth = extractForth(input)
     if (first != null && second != null && third != null && forth != null) {
-      serialize(f(first, second, third, forth))
+      f(first, second, third, forth)
     } else {
       null
+    }
+  }
+
+  override def internalDoGenCode(ctx: CodegenContext, ev: ExprCode, serializeResult: Boolean): ExprCode = {
+    val first = inputExpressions(0)
+    val second = inputExpressions(1)
+    val third = inputExpressions(2)
+    val fourth = inputExpressions(3)
+
+    val (firstGen, firstValue) = genChildCode(ctx, first, getDeserializedType[A1], buildCodegenExtractor[A1])
+    val (secondGen, secondValue) = genChildCode(ctx, second, getDeserializedType[A2], buildCodegenExtractor[A2])
+    val (thirdGen, thirdValue) = genChildCode(ctx, third, getDeserializedType[A3], buildCodegenExtractor[A3])
+    val (fourthGen, fourthValue) = genChildCode(ctx, fourth, getDeserializedType[A4], buildCodegenExtractor[A4])
+
+    val func = ctx.addReferenceObj("func", f, s"scala.Function4")
+    val boxedType = CodeGenerator.boxedType(dataType)
+    val deserializedType = getDeserializedType[R]
+    val codegenSerialize = buildCodegenSerializer[R]
+
+    val resultSerializer: String => String = if (serializeResult) {
+      s: String => s"($boxedType)${codegenSerialize(s)}"
+    } else {
+      s: String => s"(${deserializedType.get.getCanonicalName})$s"
+    }
+
+    val intermediateVar = ctx.freshName("value")
+    val resultCode = if (nullable) {
+      s"""
+        Object $intermediateVar = $func.apply($firstValue, $secondValue, $thirdValue, $fourthValue);
+        if ($intermediateVar == null) {
+          ${ev.isNull} = true;
+        } else {
+          ${ev.value} = ${resultSerializer(intermediateVar)};
+        }
+      """
+    } else {
+      val resultValue = s"$func.apply($firstValue, $secondValue, $thirdValue, $fourthValue)"
+      s"${ev.value} = ${resultSerializer(resultValue)};"
+    }
+
+    if (nullable) {
+      val nullSafeEval =
+        firstGen.code + ctx.nullSafeExec(first.nullable, firstGen.isNull) {
+          secondGen.code + ctx.nullSafeExec(second.nullable, secondGen.isNull) {
+            thirdGen.code + ctx.nullSafeExec(third.nullable, thirdGen.isNull) {
+              fourthGen.code + ctx.nullSafeExec(fourth.nullable, fourthGen.isNull) {
+                s"""
+                  ${ev.isNull} = false;
+                  $resultCode
+                """
+              }
+            }
+          }
+        }
+
+      ev.copy(code = code"""
+        boolean ${ev.isNull} = true;
+        ${ev.value.javaType.getCanonicalName()} ${ev.value} = ${CodeGenerator.defaultValue(dataType)};
+        $nullSafeEval
+      """)
+    } else {
+      ev.copy(code = code"""
+        ${firstGen.code}
+        ${secondGen.code}
+        ${thirdGen.code}
+        ${fourthGen.code}
+        ${ev.value.javaType.getCanonicalName()} ${ev.value} = ${CodeGenerator.defaultValue(dataType)};
+        $resultCode""", isNull = FalseLiteral)
     }
   }
 }

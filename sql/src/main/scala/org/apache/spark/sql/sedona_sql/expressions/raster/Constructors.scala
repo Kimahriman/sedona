@@ -20,10 +20,9 @@ package org.apache.spark.sql.sedona_sql.expressions.raster
 
 import org.apache.sedona.common.raster.{Constructors, Serde}
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression}
+import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, SerdeAware}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.sedona_sql.UDT.RasterUDT
-import org.apache.spark.sql.sedona_sql.expressions.SerdeAware
 import org.apache.spark.sql.types.{AbstractDataType, BinaryType, DataType}
 import org.apache.spark.sql.sedona_sql.expressions.raster.implicits._
 import org.geotools.coverage.grid.GridCoverage2D

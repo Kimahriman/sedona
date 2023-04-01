@@ -22,12 +22,11 @@ package org.apache.spark.sql.sedona_sql.expressions.collect
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 
-import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.{Expression, SerdeAware}
 
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.sedona_sql.UDT.GeometryUDT
 import org.apache.spark.sql.sedona_sql.expressions.implicits._
-import org.apache.spark.sql.sedona_sql.expressions.SerdeAware
 import org.apache.spark.sql.types.{ArrayType, _}
 
 import org.locationtech.jts.geom.Geometry

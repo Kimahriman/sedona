@@ -18,28 +18,35 @@
  */
 package org.apache.sedona.sql
 
-import org.apache.log4j.{Level, Logger}
 import org.apache.sedona.core.serde.SedonaKryoRegistrator
 import org.apache.sedona.sql.utils.SedonaSQLRegistrator
 import org.apache.spark.serializer.KryoSerializer
+import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.catalyst.expressions.CodegenObjectFactoryMode
+import org.apache.spark.sql.internal.SQLConf
 import org.scalatest.{BeforeAndAfterAll, FunSpec}
 
+
 trait TestBaseScala extends FunSpec with BeforeAndAfterAll {
-  Logger.getRootLogger().setLevel(Level.WARN)
-  Logger.getLogger("org.apache").setLevel(Level.WARN)
-  Logger.getLogger("com").setLevel(Level.WARN)
-  Logger.getLogger("akka").setLevel(Level.WARN)
-  Logger.getLogger("org.apache.sedona.core").setLevel(Level.WARN)
 
   val warehouseLocation = System.getProperty("user.dir") + "/target/"
-  val sparkSession = SparkSession.builder().config("spark.serializer", classOf[KryoSerializer].getName).
-    config("spark.kryo.registrator", classOf[SedonaKryoRegistrator].getName).
-    master("local[*]").appName("sedonasqlScalaTest")
-    .config("spark.sql.warehouse.dir", warehouseLocation)
-    // We need to be explicit about broadcasting in tests.
-    .config("sedona.join.autoBroadcastJoinThreshold", "-1")
-    .getOrCreate()
+
+  def sparkConf: SparkConf = {
+    new SparkConf()
+      .set(SQLConf.CODEGEN_FALLBACK.key, "false")
+      .set(SQLConf.CODEGEN_FACTORY_MODE.key, CodegenObjectFactoryMode.CODEGEN_ONLY.toString)
+      .set("spark.serializer", classOf[KryoSerializer].getName)
+      .set("spark.kryo.registrator", classOf[SedonaKryoRegistrator].getName)
+      .set("spark.sql.warehouse.dir", warehouseLocation)
+      // We need to be explicit about broadcasting in tests.
+      .set("sedona.join.autoBroadcastJoinThreshold", "-1")
+  }
+
+  val sparkSession: SparkSession =  SparkSession.builder()
+      .config(sparkConf)
+      .master("local[*]").appName("sedonasqlScalaTest")
+      .getOrCreate()
 
   val resourceFolder = System.getProperty("user.dir") + "/../core/src/test/resources/"
   val mixedWkbGeometryInputLocation = resourceFolder + "county_small_wkb.tsv"

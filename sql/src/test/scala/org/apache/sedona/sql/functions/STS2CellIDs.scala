@@ -59,7 +59,7 @@ class STS2CellIDs extends TestBaseScala with Matchers with GeometrySample with G
 
       Then("valid should have list of Long type cell ids returned")
       geometryDfWithCellIDs.select("cell_ids").collect().foreach(
-        r => require(r.get(0).isInstanceOf[mutable.WrappedArray[Long]] && r.size > 0)
+        r => require(r.get(0).isInstanceOf[mutable.WrappedArray[_]] && r.size > 0)
       )
     }
 
