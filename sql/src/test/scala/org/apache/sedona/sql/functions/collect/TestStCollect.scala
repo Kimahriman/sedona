@@ -30,7 +30,7 @@ class TestStCollect
     with GivenWhenThen
     with Matchers {
 
-  import sparkSession.implicits._
+  import testImplicits._
 
   describe("st collect workflow") {
     it("should return null when passed geometry is also null") {

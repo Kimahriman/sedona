@@ -26,6 +26,8 @@ import org.apache.spark.sql.Row
 
 class BroadcastIndexJoinSuite extends TestBaseScala {
 
+  import testImplicits._
+
   describe("Sedona-SQL Broadcast Index Join Test for inner joins") {
 
     // Using UDFs rather than lit prevents optimizations that would circumvent the checks we want to test
@@ -1433,7 +1435,6 @@ class BroadcastIndexJoinSuite extends TestBaseScala {
 
   describe("Sedona-SQL Broadcast join with null geometries") {
     it("Left outer join with nulls on left side") {
-      import sparkSession.implicits._
       val left = Seq(("1", "POINT(1 1)"), ("2", "POINT(1 1)"), ("3", "POINT(1 1)"), ("4", null))
         .toDF("seq", "left_geom")
         .withColumn("left_geom", expr("ST_GeomFromText(left_geom)"))
@@ -1446,7 +1447,6 @@ class BroadcastIndexJoinSuite extends TestBaseScala {
     }
 
     it("Left anti join with nulls on left side") {
-      import sparkSession.implicits._
       val left = Seq(("1", "POINT(1 1)"), ("2", "POINT(1 1)"), ("3", "POINT(1 1)"), ("4", null))
         .toDF("seq", "left_geom")
         .withColumn("left_geom", expr("ST_GeomFromText(left_geom)"))

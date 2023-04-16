@@ -26,7 +26,7 @@ import org.scalatest.matchers.should.Matchers
 
 class TestStGeoHash extends TestBaseScala with GeometrySample with GivenWhenThen with Matchers{
 
-  import sparkSession.implicits._
+  import testImplicits._
 
   describe("should correctly calculate st geohash function for 10 precision"){
     it("should return geohash"){

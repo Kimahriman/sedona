@@ -39,10 +39,11 @@ import org.xml.sax.InputSource
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
+import org.apache.spark.util.Utils
 
 abstract class FunctionSuiteBase extends TestBaseScala with Matchers with GeometrySample with GivenWhenThen {
 
-  import sparkSession.implicits._
+  import testImplicits._
 
   describe("Sedona-SQL Function Test") {
 
@@ -924,8 +925,10 @@ abstract class FunctionSuiteBase extends TestBaseScala with Matchers with Geomet
     When("Using ST_Dumps")
     val dumpedGeometries = geometryDf.selectExpr("ST_Dump(geom) as geom")
     Then("Should return geometries list")
+    println("Got here")
 
     dumpedGeometries.select(explode($"geom")).count shouldBe 14
+    println("Got here two")
     dumpedGeometries
       .select(explode($"geom").alias("geom"))
       .selectExpr("ST_AsText(geom) as geom")
@@ -1827,5 +1830,6 @@ class CodegenFunctionSuite extends FunctionSuiteBase
 
 class EvalFunctionSuite extends FunctionSuiteBase {
   override def sparkConf: SparkConf = super.sparkConf
-    .set(SQLConf.CODEGEN_FACTORY_MODE.key, CodegenObjectFactoryMode.CODEGEN_ONLY.toString)
+    .set(SQLConf.CODEGEN_FACTORY_MODE.key, CodegenObjectFactoryMode.NO_CODEGEN.toString)
+    .set(SQLConf.WHOLESTAGE_CODEGEN_ENABLED.key, "false")
 }

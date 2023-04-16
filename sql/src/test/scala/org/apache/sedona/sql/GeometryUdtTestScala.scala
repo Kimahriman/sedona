@@ -29,7 +29,7 @@ import org.scalatest.BeforeAndAfter
 
 class GeometryUdtTestScala extends TestBaseScala with BeforeAndAfter {
 
-  import sparkSession.implicits._
+  import testImplicits._
 
   var tempFolder: TemporaryFolder = new TemporaryFolder
   var dataFrame: DataFrame = _

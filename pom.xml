@@ -442,6 +442,13 @@
                         <junitxml>.</junitxml>
                         <filereports>TestSuiteReport.txt</filereports>
                         <argLine>${extraJavaTestArgs}</argLine>
+                        <environmentVariables>
+                            <!-- Set to enable specific test-only Spark behaviors -->
+                            <SPARK_TESTING>1</SPARK_TESTING>
+                        </environmentVariables>
+                        <systemProperties>
+                            <spark.testing>1</spark.testing>
+                        </systemProperties>
                     </configuration>
                     <executions>
                         <execution>

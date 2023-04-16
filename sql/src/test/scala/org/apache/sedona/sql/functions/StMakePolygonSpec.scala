@@ -23,7 +23,7 @@ import org.apache.spark.sql.functions.{col, expr, lit, when}
 import org.scalatest.{GivenWhenThen, Matchers}
 
 class StMakePolygonSpec extends TestBaseScala with Matchers with GeometrySample with GivenWhenThen {
-  import sparkSession.implicits._
+  import testImplicits._
 
   describe("should pass ST_MAkePolygon"){
 

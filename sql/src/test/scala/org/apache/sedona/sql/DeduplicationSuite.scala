@@ -26,7 +26,7 @@ class DeduplicationSuite extends TestBaseScala {
   describe("Sedona-SQL Deduplication") {
     it("Deduplicate of two joins in a single execution stage") {
       //See https://issues.apache.org/jira/browse/SEDONA-233
-      import sparkSession.implicits._
+      import testImplicits._
       val left = Seq("POLYGON ((3 0, 3 3, 0 3, 0 0, 3 0))",
         "POLYGON ((4 1, 4 4, 1 4, 1 1, 4 1))",
         "POLYGON ((3 1, 3 4, 0 4, 0 1, 3 1))",

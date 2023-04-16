@@ -25,7 +25,7 @@ import org.scalatest.{GivenWhenThen, Matchers}
 import scala.collection.mutable
 
 class STS2CellIDs extends TestBaseScala with Matchers with GeometrySample with GivenWhenThen {
-  import sparkSession.implicits._
+  import testImplicits._
 
   describe("should pass ST_S2CellIDs"){
 

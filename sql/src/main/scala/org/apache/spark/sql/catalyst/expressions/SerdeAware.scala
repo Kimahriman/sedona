@@ -28,37 +28,20 @@ trait SerdeAware {
 trait SerdeAwareCodegen {
   this: Expression =>
 
-  def internalDoGenCode(ctx: CodegenContext, ev: ExprCode, serializeValue: Boolean): ExprCode
+  @volatile var shouldSerialize = true
 
-  def genChildCode(
-      ctx: CodegenContext,
-      child: Expression,
-      deserializedType: Option[Class[_]],
-      deserializer: String => String): (ExprCode, String) = {
-    child match {
-      case serdeAware: SerdeAwareCodegen
-          if deserializedType.isDefined && !ctx.subExprEliminationExprs.get(ExpressionEquals(this)).isDefined =>
-        val isNull = ctx.freshName("isNull")
-        val value = ctx.freshName("value")
-        val exprCode = ExprCode(
-          JavaCode.isNullVariable(isNull),
-          JavaCode.variable(value, deserializedType.get))
-        val eval = serdeAware.internalDoGenCode(ctx, exprCode, false)
-        // reduceCodeSize(ctx, eval)
-        if (eval.code.toString.nonEmpty) {
-          // Add `this` in the comment.
-          eval.copy(code = ctx.registerComment(this.toString) + eval.code)
-        } else {
-          eval
-        }
-        (eval, eval.value)
-      case e =>
-        val code = e.genCode(ctx)
-        (code, deserializer(code.value))
+  def withDeserializedCodeGen[T](f: => T): T = {
+    shouldSerialize = false
+    try {
+      f
+    } finally {
+      shouldSerialize = true
     }
   }
 
+  def internalDoGenCode(ctx: CodegenContext, ev: ExprCode, serializeValue: Boolean): ExprCode
+
   def doGenCode(ctx: CodegenContext, ev: ExprCode): ExprCode = {
-    internalDoGenCode(ctx, ev, true)
+    internalDoGenCode(ctx, ev, shouldSerialize)
   }
 }

@@ -30,7 +30,7 @@ trait GeometrySample {
   self: TestBaseScala =>
   val wktReader = new WKTReader()
 
-  import sparkSession.implicits._
+  import testImplicits._
 
   val samplePoints: List[Geometry] =
     loadGeometriesFromResources(resourceFolder + "python/samplePoints")

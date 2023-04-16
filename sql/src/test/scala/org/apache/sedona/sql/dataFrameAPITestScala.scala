@@ -31,7 +31,7 @@ import scala.collection.mutable
 
 class dataFrameAPITestScala extends TestBaseScala {
 
-  import sparkSession.implicits._
+  import testImplicits._
 
   describe("Sedona DataFrame API Test") {
     // constructors

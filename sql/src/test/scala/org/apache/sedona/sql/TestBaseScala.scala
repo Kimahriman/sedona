@@ -24,29 +24,42 @@ import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.catalyst.expressions.CodegenObjectFactoryMode
+import org.apache.spark.sql.catalyst.optimizer.ConstantFolding
 import org.apache.spark.sql.internal.SQLConf
 import org.scalatest.{BeforeAndAfterAll, FunSpec}
+import org.apache.spark.sql.SQLImplicits
+import org.apache.spark.sql.SQLContext
 
 
 trait TestBaseScala extends FunSpec with BeforeAndAfterAll {
 
   val warehouseLocation = System.getProperty("user.dir") + "/target/"
 
-  def sparkConf: SparkConf = {
-    new SparkConf()
-      .set(SQLConf.CODEGEN_FALLBACK.key, "false")
-      .set(SQLConf.CODEGEN_FACTORY_MODE.key, CodegenObjectFactoryMode.CODEGEN_ONLY.toString)
-      .set("spark.serializer", classOf[KryoSerializer].getName)
-      .set("spark.kryo.registrator", classOf[SedonaKryoRegistrator].getName)
-      .set("spark.sql.warehouse.dir", warehouseLocation)
-      // We need to be explicit about broadcasting in tests.
-      .set("sedona.join.autoBroadcastJoinThreshold", "-1")
-  }
+  val defaultConf = new SparkConf()
+    .set(SQLConf.CODEGEN_FALLBACK.key, "false")
+    .set(SQLConf.CODEGEN_FACTORY_MODE.key, CodegenObjectFactoryMode.CODEGEN_ONLY.toString)
+    // .set(SQLConf.OPTIMIZER_EXCLUDED_RULES.key, ConvertToLocalRelation.ruleName)
+    .set(SQLConf.OPTIMIZER_EXCLUDED_RULES.key, ConstantFolding.ruleName)
+    .set("spark.serializer", classOf[KryoSerializer].getName)
+    .set("spark.kryo.registrator", classOf[SedonaKryoRegistrator].getName)
+    .set("spark.sql.warehouse.dir", warehouseLocation)
+    // We need to be explicit about broadcasting in tests.
+    .set("sedona.join.autoBroadcastJoinThreshold", "-1")
 
-  val sparkSession: SparkSession =  SparkSession.builder()
-      .config(sparkConf)
-      .master("local[*]").appName("sedonasqlScalaTest")
-      .getOrCreate()
+  private val _baseSession = SparkSession.builder()
+    .config(defaultConf)
+    .master("local[*]")
+    .appName("sedonasqlScalaTest")
+    .getOrCreate()
+
+  private var _spark: SparkSession = _
+
+  protected implicit def sparkSession = _spark
+
+  // Helper implicits that use the active SparkSession
+  protected object testImplicits extends SQLImplicits {
+    protected override def _sqlContext: SQLContext = sparkSession.sqlContext
+  }
 
   val resourceFolder = System.getProperty("user.dir") + "/../core/src/test/resources/"
   val mixedWkbGeometryInputLocation = resourceFolder + "county_small_wkb.tsv"
@@ -73,13 +86,19 @@ trait TestBaseScala extends FunSpec with BeforeAndAfterAll {
   val spatialJoinLeftInputLocation: String = resourceFolder + "spatial-predicates-test-data.tsv"
   val spatialJoinRightInputLocation: String = resourceFolder + "spatial-join-query-window.tsv"
 
+  def sparkConf: SparkConf = new SparkConf(false)
+
   override def beforeAll(): Unit = {
+    _spark = _baseSession.newSession()
+    sparkConf.getAll.foreach { case (key, value) =>
+      _spark.conf.set(key, value)
+    }
     SedonaSQLRegistrator.registerAll(sparkSession)
   }
 
   override def afterAll(): Unit = {
-    //SedonaSQLRegistrator.dropAll(spark)
-    //spark.stop
+    SedonaSQLRegistrator.dropAll(sparkSession)
+    _spark = null
   }
 
   def loadCsv(path: String): DataFrame = {

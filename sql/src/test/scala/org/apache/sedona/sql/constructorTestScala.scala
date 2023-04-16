@@ -26,7 +26,7 @@ import org.locationtech.jts.geom.{Geometry, LineString}
 
 class constructorTestScala extends TestBaseScala {
 
-  import sparkSession.implicits._
+  import testImplicits._
 
   describe("Sedona-SQL Constructor Test") {
     it("Passed ST_Point") {

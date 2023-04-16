@@ -28,7 +28,7 @@ import scala.collection.mutable
 
 class rasteralgebraTest extends TestBaseScala with BeforeAndAfter with GivenWhenThen{
 
-  import sparkSession.implicits._
+  import testImplicits._
 
   describe("should pass all the arithmetic operations on bands") {
     it("Passed RS_Add") {

@@ -24,7 +24,7 @@ import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.should.Matchers
 
 class TestStGeometryFromGeoHash extends TestBaseScala with GeometrySample with GivenWhenThen with Matchers{
-  import sparkSession.implicits._
+  import testImplicits._
 
   describe("should create geometries based on hash using ST_GeomFromGeoHash function"){
     it("should create polygon geometry based on geohash"){
