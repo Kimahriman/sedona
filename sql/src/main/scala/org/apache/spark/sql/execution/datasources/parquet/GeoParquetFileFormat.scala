@@ -211,14 +211,14 @@ class GeoParquetFileFormat(val spatialFilter: Option[GeoParquetSpatialFilter])
     val pushDownDate = sqlConf.parquetFilterPushDownDate
     val pushDownTimestamp = sqlConf.parquetFilterPushDownTimestamp
     val pushDownDecimal = sqlConf.parquetFilterPushDownDecimal
-    val pushDownStringStartWith = sqlConf.parquetFilterPushDownStringStartWith
+    val pushDownStringPredicate = sqlConf.parquetFilterPushDownStringPredicate
     val pushDownInFilterThreshold = sqlConf.parquetFilterPushDownInFilterThreshold
     val isCaseSensitive = sqlConf.caseSensitiveAnalysis
 
     (file: PartitionedFile) => {
       assert(file.partitionValues.numFields == partitionSchema.size)
 
-      val filePath = new Path(new URI(file.filePath))
+      val filePath = file.toPath
       val split =
         new org.apache.parquet.hadoop.ParquetInputSplit(
           filePath,
@@ -236,7 +236,7 @@ class GeoParquetFileFormat(val spatialFilter: Option[GeoParquetSpatialFilter])
       val pushed = if (enableParquetFilterPushDown) {
         val parquetSchema = footerFileMetaData.getSchema
         val parquetFilters = new GeoParquetFilters(parquetSchema, pushDownDate, pushDownTimestamp,
-          pushDownDecimal, pushDownStringStartWith, pushDownInFilterThreshold, isCaseSensitive)
+          pushDownDecimal, pushDownStringPredicate, pushDownInFilterThreshold, isCaseSensitive)
         filters
           // Collects all converted Parquet filter predicates. Notice that not all predicates can be
           // converted (`ParquetFilters.createFilter` returns an `Option`). That's why a `flatMap`

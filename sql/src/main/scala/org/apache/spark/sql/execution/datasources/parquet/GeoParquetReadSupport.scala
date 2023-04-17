@@ -76,7 +76,7 @@ class GeoParquetReadSupport (
       SQLConf.NESTED_SCHEMA_PRUNING_ENABLED.defaultValue.get)
     val parquetFileSchema = context.getFileSchema
     val parquetClippedSchema = ParquetReadSupport.clipParquetSchema(parquetFileSchema,
-      catalystRequestedSchema, caseSensitive)
+      catalystRequestedSchema, caseSensitive, false)
 
     // We pass two schema to ParquetRecordMaterializer:
     // - parquetRequestedSchema: the schema of the file data we want to read

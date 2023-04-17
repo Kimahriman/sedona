@@ -102,7 +102,7 @@ private[spark] class GeotiffFileFormat extends FileFormat with DataSourceRegiste
         Iterator(emptyUnsafeRow)
       } else {
         val origin = file.filePath
-        val path = new Path(origin)
+        val path = origin.toPath
         val fs = path.getFileSystem(broadcastedHadoopConf.value.value)
         val stream = fs.open(path)
         val bytes = try {
@@ -111,11 +111,11 @@ private[spark] class GeotiffFileFormat extends FileFormat with DataSourceRegiste
           Closeables.close(stream, true)
         }
 
-        val resultOpt = GeotiffSchema.decode(origin, bytes, imageSourceOptions)
+        val resultOpt = GeotiffSchema.decode(origin.toPath.toString, bytes, imageSourceOptions)
         val filteredResult = if (imageSourceOptions.dropInvalid) {
           resultOpt.toIterator
         } else {
-          Iterator(resultOpt.getOrElse(GeotiffSchema.invalidImageRow(origin)))
+          Iterator(resultOpt.getOrElse(GeotiffSchema.invalidImageRow(origin.toPath.toString)))
         }
 
         if (requiredSchema.isEmpty) {
