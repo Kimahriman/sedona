@@ -1761,9 +1761,6 @@ class TestDataFrameAPI(TestBase):
         os.getenv("SPARK_REMOTE") is not None,
         reason="Checkpoint dir is not available in Spark Connect",
     )
-    @pytest.mark.skipif(
-        pyspark.__version__ >= "4", reason="DBSCAN is not supported yet on Spark 4"
-    )
     def test_dbscan(self):
         df = self.spark.createDataFrame([{"id": 1, "x": 2, "y": 3}]).withColumn(
             "geometry", f.expr("ST_Point(x, y)")

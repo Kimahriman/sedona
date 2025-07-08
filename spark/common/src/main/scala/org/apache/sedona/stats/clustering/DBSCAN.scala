@@ -109,7 +109,20 @@ object DBSCAN {
       .join(corePointsDF.alias("right"), col("left.dst") === col(s"right.id"))
       .select(col("left.src"), col(s"right.id").alias("dst"))
 
-    val connectedComponentsDF = GraphFrame(corePointsDF, coreEdgesDf).connectedComponents.run
+    val currentSetting =
+      corePointsDF.sparkSession.conf.getOption("spark.graphframes.useLabelsAsComponents")
+    val connectedComponentsDF =
+      try {
+        corePointsDF.sparkSession.conf.set("spark.graphframes.useLabelsAsComponents", "false")
+        GraphFrame(corePointsDF, coreEdgesDf).connectedComponents.run
+      } finally {
+        if (currentSetting.nonEmpty) {
+          corePointsDF.sparkSession.conf
+            .set("spark.graphframes.useLabelsAsComponents", currentSetting.get)
+        } else {
+          corePointsDF.sparkSession.conf.unset("spark.graphframes.useLabelsAsComponents")
+        }
+      }
 
     val borderComponentsDF = borderPointsDF
       .select(struct("*").alias("leftContent"), explode(col("neighbors")).alias("neighbor"))

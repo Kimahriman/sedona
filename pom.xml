@@ -85,7 +85,7 @@
         <spark.compat.version>3.4</spark.compat.version>
         <spark.major.version>3</spark.major.version>
         <log4j.version>2.19.0</log4j.version>
-        <graphframe.version>0.8.3-spark3.4</graphframe.version>
+        <graphframe.version>0.9.0-SNAPSHOT</graphframe.version>
 
         <flink.version>1.19.0</flink.version>
         <slf4j.version>1.7.36</slf4j.version>
@@ -422,6 +422,17 @@
             <id>Spark Packages</id>
             <url>https://repos.spark-packages.org/</url>
         </repository>
+        <repository>
+            <name>Central Portal Snapshots</name>
+            <id>central-portal-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
     <build>
         <pluginManagement>
@@ -715,7 +726,6 @@
                 <spark.version>3.4.0</spark.version>
                 <spark.compat.version>3.4</spark.compat.version>
                 <log4j.version>2.19.0</log4j.version>
-                <graphframe.version>0.8.3-spark3.4</graphframe.version>
                 <!-- Skip deploying parent module. it will be deployed with sedona-spark-3.3 -->
                 <skip.deploy.common.modules>true</skip.deploy.common.modules>
             </properties>
@@ -732,7 +742,6 @@
                 <spark.version>3.5.0</spark.version>
                 <spark.compat.version>3.5</spark.compat.version>
                 <log4j.version>2.20.0</log4j.version>
-                <graphframe.version>0.8.3-spark3.5</graphframe.version>
                 <!-- Skip deploying parent module. it will be deployed with sedona-spark-3.3 -->
                 <skip.deploy.common.modules>true</skip.deploy.common.modules>
             </properties>
@@ -752,7 +761,6 @@
                 <hadoop.version>3.4.1</hadoop.version>
                 <log4j.version>2.24.3</log4j.version>
                 <slf4j.version>2.0.16</slf4j.version>
-                <graphframe.version>0.8.3-spark3.5</graphframe.version>
                 <scala.version>2.13.12</scala.version>
                 <scala.compat.version>2.13</scala.compat.version>
                 <!-- Skip deploying parent module. it will be deployed with sedona-spark-3.3 -->
